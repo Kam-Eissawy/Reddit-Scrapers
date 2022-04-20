@@ -24,28 +24,29 @@ subreddit = reddit.subreddit('gamedeals')
 # posts that were already checked
 already_checked = []
 
-for submission in subreddit.new(limit=10):
-    
-    # check if the post was already checked
-    if submission.id not in already_checked:
-        already_checked.append(submission.id)
-    else:
-        continue
+while True:
+    for submission in subreddit.new(limit=10):
 
-    # convert the post's title to lowercase
-    title = submission.title.lower()
-    
-    # check if the game is free and post it to slack
-    if '100%' in title or 'free' in title:
-        slack.chat.post_message('#free_games', submission.title)
-        slack.chat.post_message('#free_games', submission.url)
+        # check if the post was already checked
+        if submission.id not in already_checked:
+            already_checked.append(submission.id)
+        else:
+            continue
 
-    # check if the game has a discount and post it to slack
-    elif not get_free_only:
-        percentages = [str(i) + '%' for i in range(min_discount,101)]
-        if any(perc in title for perc in percentages):
-            slack.chat.post_message('#discounted_games', submission.title)
-            slack.chat.post_message('#discounted_games', submission.url)
-    
+        # convert the post's title to lowercase
+        title = submission.title.lower()
+
+        # check if the game is free and post it to slack
+        if '100%' in title or 'free' in title:
+            slack.chat.post_message('#free_games', submission.title)
+            slack.chat.post_message('#free_games', submission.url)
+
+        # check if the game has a discount and post it to slack
+        elif not get_free_only:
+            percentages = [str(i) + '%' for i in range(min_discount,101)]
+            if any(perc in title for perc in percentages):
+                slack.chat.post_message('#discounted_games', submission.title)
+                slack.chat.post_message('#discounted_games', submission.url)
+
     # wait for 5 seconds before checking for new posts
     time.sleep(5)
